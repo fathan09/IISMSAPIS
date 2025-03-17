@@ -67,13 +67,13 @@ public static class ProductEndpoint {
             return Results.CreatedAtRoute(GetProductEndpointName, new { id = product.productId }, product.ToProductDetailsDto());
         }).WithParameterValidation();
 
-        group.MapPut("/update/{id}", async (int id, UpdateProductDto updatedProduct, IISMSContext dbContext) => {
+         group.MapPut("/update/{id}", async (int id, UpdateProductDto updatedProduct, IISMSContext dbContext) => {
            
             var exisitingProduct = await dbContext.Products.FindAsync(id);
             if(exisitingProduct is null) {
                 return Results.NotFound();
             }
-            byte[]? existingBarcode = exisitingProduct.productBarcode;
+            string? existingBarcode = exisitingProduct.productBarcode;
             DateTime existingTimestamp = exisitingProduct.firstCreationTimestamp;
             dbContext.Entry(exisitingProduct).CurrentValues.SetValues(updatedProduct.ToEntity(id, existingBarcode, existingTimestamp));
             await dbContext.SaveChangesAsync();

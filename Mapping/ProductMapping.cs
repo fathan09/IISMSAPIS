@@ -4,7 +4,7 @@ using IISMSBackend.Entities;
 namespace IISMSBackend.Mapping;
 
 public static class ProductMapping {
-    public static Product ToEntity(this CreateProductDto product, byte[] barcode, DateTime timestamp) {
+    public static Product ToEntity(this CreateProductDto product, string barcode, DateTime timestamp) {
         return new Product() {
             productImage = product.productImage,
             productName = product.productName,
@@ -19,7 +19,7 @@ public static class ProductMapping {
         };
     }
 
-    public static Product ToEntity(this UpdateProductDto product, int id, byte[] barcode, DateTime timestamp) {
+    public static Product ToEntity(this UpdateProductDto product, int id, string barcode, DateTime timestamp) {
         return new Product() {
             productId = id,
             productImage = product.productImage,

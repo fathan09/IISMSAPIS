@@ -5,10 +5,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Net;
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
+
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://*:{port}");
 
 var key = "b!$p@JvXy$GzW8qLzC!kM4dV3mFzN0vY";
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -37,26 +39,41 @@ builder.Services.AddCors(options =>
                         .AllowAnyHeader());
 });
 
+
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") 
+                       ?? builder.Configuration.GetConnectionString("WebApiDatabase");
+
 builder.Services.AddDbContext<IISMSContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("WebApiDatabase"))
-);
+    options.UseNpgsql(connectionString));
 
 var app = builder.Build();
+
 
 app.UseCors("AllowAll");
 
 
+app.UseAuthentication();
 app.UseAuthorization();
-app.UseAuthentication(); 
 
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<IISMSContext>();
-    await dbContext.Database.MigrateAsync();
+    try
+    {
+        await dbContext.Database.MigrateAsync();
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"⚠️ Database migration failed: {ex.Message}");
+    }
 }
+
 
 app.MapUserEndpoint();
 app.MapProductEndpoint();
 app.MapControllers();
+
+
+Console.WriteLine($"Server running on port {port}");
 
 app.Run();

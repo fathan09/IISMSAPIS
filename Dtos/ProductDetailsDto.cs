@@ -4,7 +4,7 @@ public record class ProductDetailsDto(
     int productId,
     byte[]? productImage,
     string productName,
-    string productBarcode,
+    byte[] productBarcode,
     string category,
     decimal size,
     string unit,

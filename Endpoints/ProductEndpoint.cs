@@ -29,12 +29,11 @@ public static class ProductEndpoint {
             return product is null ? Results.NotFound() : Results.Ok(product.ToProductDetailsDto());
         }).WithName(GetProductEndpointName);
 
-        group.MapPost("/create", async(CreateProductDto newProduct, IISMSContext dbContext) => {
+        group.MapPost("/create", async (CreateProductDto newProduct, IISMSContext dbContext) => {
             string barcodeInfo = $"{newProduct.productName}";
-            
             DateTime timestamp = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc);
 
-
+           
             var barcodeWriter = new ZXing.SkiaSharp.BarcodeWriter
             {
                 Format = BarcodeFormat.CODE_128,
@@ -48,19 +47,24 @@ public static class ProductEndpoint {
 
             SKBitmap skBitmap = barcodeWriter.Write(barcodeInfo);
 
-        
-            byte[] newBarcode;
+     
+            byte[] barcodeBytes;
             using (var image = skBitmap.Encode(SKEncodedImageFormat.Png, 100))
             using (var ms = new MemoryStream())
             {
                 image.AsStream().CopyTo(ms);
-                newBarcode = ms.ToArray();
+                barcodeBytes = ms.ToArray();
             }
 
-            Product product = newProduct.ToEntity(newBarcode, timestamp);
+            
+            string barcodeBase64 = Convert.ToBase64String(barcodeBytes);
+
+        
+            Product product = newProduct.ToEntity(barcodeBase64, timestamp);
             dbContext.Products.Add(product);
             await dbContext.SaveChangesAsync();
-            return Results.CreatedAtRoute(GetProductEndpointName, new {id = product.productId}, product.ToProductDetailsDto());
+
+            return Results.CreatedAtRoute(GetProductEndpointName, new { id = product.productId }, product.ToProductDetailsDto());
         }).WithParameterValidation();
 
         group.MapPut("/update/{id}", async (int id, UpdateProductDto updatedProduct, IISMSContext dbContext) => {

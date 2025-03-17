@@ -10,7 +10,7 @@ public class Product {
     public int productId {get; set;}
     public  byte[]? productImage {get; set;}
     public required string productName {get; set;}
-    public required string productBarcode {get; set;}
+    public required byte[] productBarcode {get; set;}
     public required string category {get; set;}
     public required decimal size {get; set;}
     public required string unit {get; set;}

@@ -81,6 +81,18 @@ public static class ProductEndpoint {
             await dbContext.Products.Where(product => product.productId == id).ExecuteDeleteAsync();
             return Results.NoContent();
         });
+
+        group.MapGet("/search", async (string query, IISMSContext dbContext) =>
+        {
+            var filteredProducts = await dbContext.Products
+                .Where(p => p.productName.Contains(query))
+                .Select(product => product.ToProductDetailsDto()) 
+                .AsNoTracking()
+                .ToListAsync();
+
+            return Results.Ok(filteredProducts);
+        });
+        
         return group;
     }
 }

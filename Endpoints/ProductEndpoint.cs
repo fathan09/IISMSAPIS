@@ -82,15 +82,23 @@ public static class ProductEndpoint {
             return Results.NoContent();
         });
 
-         group.MapGet("/search", async (string name, IISMSContext dbContext) => {
+         group.MapGet("/search", async (HttpContext httpContext, IISMSContext dbContext) => {
+        
+            string? name = httpContext.Request.Query["name"];
+
+            if (string.IsNullOrWhiteSpace(name)) {
+                return Results.BadRequest("Search query cannot be empty.");
+            }
+
             var products = await dbContext.Products
-                .Where(p => EF.Functions.Like(p.productName, $"%{name}%")) // Partial match
+                .Where(p => EF.Functions.Like(p.productName, $"%{name}%"))
                 .Select(p => p.ToProductDetailsDto())
                 .AsNoTracking()
                 .ToListAsync();
 
             return products.Any() ? Results.Ok(products) : Results.NotFound("No products found.");
         });
+
         return group;
     }
 }

@@ -98,6 +98,29 @@ public static class ProductEndpoint {
         return products.Any() ? Results.Ok(products) : Results.NotFound("No products found.");
     });
 
+         group.MapPost("/sales", async(int id, CreateSalesRecordDto newSales, IISMSContext dbContext) => {
+            DateTime timestamp = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc);
+
+
+            int[] productId = new int[newSales.productName.Length];
+            for(int i = 0; i < newSales.productName.Length; i++) {
+                var product = await dbContext.Products.FirstOrDefaultAsync(p => p.productName == newSales.productName[i]);
+
+                if(product == null) {
+                    return Results.NotFound($"Product not found : {newSales.productName[i]}");
+                } else {
+                    productId[i] = product.productId;
+                }
+            }
+
+            Sales sale =  newSales.ToEntity(timestamp, productId);
+
+            dbContext.Sales.Add(sale);
+            await dbContext.SaveChangesAsync();
+            return Results.CreatedAtRoute(GetProductEndpointName, new {id = sale.salesId});
+
+        });
+
         return group;
     }
 }

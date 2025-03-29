@@ -99,6 +99,10 @@ public static class ProductEndpoint {
     });
 
          group.MapPost("/sales", async(int id, CreateSalesRecordDto newSales, IISMSContext dbContext) => {
+
+            Console.WriteLine("Received request data:");
+            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(newSales));
+
             DateTime timestamp = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc);
 
 

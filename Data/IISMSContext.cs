@@ -17,4 +17,6 @@ public class IISMSContext : DbContext {
 
     public DbSet<User> Users {get; set;}
     public DbSet<Product> Products {get; set;}
+    public DbSet <Sales> Sales {get; set;}
+    public DbSet <SalesProduct> SalesProduct {get; set;}
 }

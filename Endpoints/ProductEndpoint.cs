@@ -98,7 +98,7 @@ public static class ProductEndpoint {
         return products.Any() ? Results.Ok(products) : Results.NotFound("No products found.");
     });
 
-         group.MapPost("/sales", async(int id, CreateSalesRecordDto newSales, IISMSContext dbContext) => {
+         group.MapPost("/sales", async(CreateSalesRecordDto newSales, IISMSContext dbContext) => {
 
             Console.WriteLine("Received request data:");
             Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(newSales));

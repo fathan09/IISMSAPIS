@@ -36,6 +36,29 @@ public static class ProductMapping {
         };
     }
 
+     public static Sales ToEntity(this CreateSalesRecordDto sales, DateTime timestamp, int[] productId) {
+
+        var salesEntity = new Sales {
+            totalCartQuantity = sales.totalCartQuantity,
+            totalCartPrice = sales.totalCartPrice,
+            salesTimestamp = timestamp,
+            SalesProducts = new List<SalesProduct>()
+        };
+        for(int i = 0; i < sales.productName.Length; i++) {
+            var salesProduct = new SalesProduct {
+                productId = productId[i],
+                salesQuantity = sales.quantity[i],
+                unitPrice = sales.unitPrice[i],
+                totalUnitPrice = sales.totalUnitPrice[i],
+                Sale = salesEntity,
+            };
+            salesEntity.SalesProducts.Add(salesProduct);
+        }
+       return salesEntity;
+    }
+
+
+
     public static ProductDetailsDto ToProductDetailsDto(this Product product) {
         return new(
             product.productId,

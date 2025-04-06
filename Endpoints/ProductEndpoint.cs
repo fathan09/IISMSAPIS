@@ -121,8 +121,17 @@ public static class ProductEndpoint {
 
             dbContext.Sales.Add(sale);
             await dbContext.SaveChangesAsync();
-            return Results.CreatedAtRoute(GetProductEndpointName, new {id = sale.salesId});
+            return Results.CreatedAtRoute(GetProductEndpointName, new {id = sale.salesId}, sale.ToSalesDetailsDto());
 
+        });
+
+        group.MapGet("/allsalesinfo", async(IISMSContext dbContext) => {
+            var sales = await dbContext.Sales
+                .Include(s => s.SalesProducts)
+                .Select(sales => sales.ToSalesDetailsDto())
+                .AsNoTracking()
+                .ToListAsync();
+            return Results.Ok(sales);
         });
 
         return group;

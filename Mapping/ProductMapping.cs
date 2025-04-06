@@ -75,5 +75,14 @@ public static class ProductMapping {
         );
     }
 
+     public static SalesDetailsDto ToSalesDetailsDto(this Sales sale) {
+        return new(
+            sale.salesId,
+            sale.totalCartPrice,
+            sale.totalCartQuantity,
+            sale.salesTimestamp,
+            sale.SalesProducts
+        );
+    }
     
 }

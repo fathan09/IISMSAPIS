@@ -57,6 +57,15 @@ public static class ProductMapping {
        return salesEntity;
     }
 
+    public static Inventory ToEntity(this CreateInventoryDto inventory, DateTime timestamp) {
+        return new Inventory() {
+            productId = inventory.productId,
+            operation = inventory.operation,
+            quantity = inventory.quantity,
+            inventoryTimestamp = timestamp
+        };
+    }
+
 
 
     public static ProductDetailsDto ToProductDetailsDto(this Product product) {
@@ -84,5 +93,14 @@ public static class ProductMapping {
             sale.SalesProducts
         );
     }
-    
+
+    public static InventoryDetailsDto ToInventoryDetailsDto(this Inventory inventory) {
+        return new(
+            inventory.inventoryId,
+            inventory.productId,
+            inventory.operation,
+            inventory.quantity,
+            inventory.inventoryTimestamp
+        );
+    }
 }

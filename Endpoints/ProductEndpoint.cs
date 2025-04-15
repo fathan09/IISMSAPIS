@@ -134,6 +134,26 @@ public static class ProductEndpoint {
             return Results.Ok(sales);
         });
 
+        
+        group.MapPost("/createinventory", async(CreateInventoryDto newInventory, IISMSContext dbContext) => {
+            DateTime timestamp = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc);
+
+            Inventory inventory = newInventory.ToEntity(timestamp);
+            dbContext.Inventory.Add(inventory);
+            await dbContext.SaveChangesAsync();
+            return Results.CreatedAtRoute(GetProductEndpointName, new { id = inventory.inventoryId }, inventory.ToInventoryDetailsDto());
+        });
+        
+
+        group.MapGet("/allinventoryinfo", async(IISMSContext dbContext) => {
+            var inventory = await dbContext.Inventory
+                .Select(inventory => inventory.ToInventoryDetailsDto())
+                .AsNoTracking()
+                .ToListAsync();
+            return Results.Ok(inventory);
+        });
+
+
         return group;
     }
 }

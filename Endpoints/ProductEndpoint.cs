@@ -153,6 +153,10 @@ public static class ProductEndpoint {
             return Results.Ok(inventory);
         });
 
+        group.MapDelete("/deleteinventory/{id}", async(int id, IISMSContext dbContext) => {
+            await dbContext.Inventory.Where(inventory => inventory.productId == id).ExecuteDeleteAsync();
+            return Results.NoContent();
+        });
 
         return group;
     }

@@ -5,6 +5,7 @@ namespace IISMSBackend.Mapping;
 
 
 public static class ProductMapping {
+    
     public static Product ToEntity(this CreateProductDto product, byte[] barcode, DateTime timestamp) {
         return new Product() {
             productImage = product.productImage,
@@ -15,7 +16,9 @@ public static class ProductMapping {
             unit = product.unit,
             price = product.price,
             quantity = product.quantity,
+            manufactureDate = product.manufactureDate,
             expirationDate = product.expirationDate,
+            productDescription = product.productDescription,
             firstCreationTimestamp = timestamp
         };
     }
@@ -31,7 +34,9 @@ public static class ProductMapping {
             unit = product.unit,
             price = product.price,
             quantity = product.quantity,
+            manufactureDate = product.manufactureDate,
             expirationDate = product.expirationDate,
+            productDescription = product.productDescription,
             firstCreationTimestamp = timestamp
         };
     }
@@ -68,7 +73,7 @@ public static class ProductMapping {
 
 
 
-    public static ProductDetailsDto ToProductDetailsDto(this Product product) {
+     public static ProductDetailsDto ToProductDetailsDto(this Product product) {
         return new(
             product.productId,
             product.productImage,
@@ -79,10 +84,13 @@ public static class ProductMapping {
             product.unit,
             product.price,
             product.quantity,
+            product.manufactureDate,
             product.expirationDate,
+            product.productDescription,
             product.firstCreationTimestamp
         );
     }
+
 
      public static SalesDetailsDto ToSalesDetailsDto(this Sales sale) {
         return new(

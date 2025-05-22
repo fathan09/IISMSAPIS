@@ -16,6 +16,8 @@ public class Product {
     public required string unit {get; set;}
     public required decimal price {get; set;}
     public required long quantity {get; set;}
-    public DateTime? expirationDate {get; set;}
-    public required DateTime firstCreationTimestamp {get; set;}
+    public DateTime? manufactureDate { get; set; }
+    public DateTime? expirationDate { get; set; }
+    public string? productDescription { get; set; }
+    public required DateTime firstCreationTimestamp { get; set; }
 }

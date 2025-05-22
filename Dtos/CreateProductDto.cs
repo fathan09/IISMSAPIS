@@ -10,5 +10,7 @@ public record class CreateProductDto(
     [Required] string unit,
     [Required] decimal price,
     [Required] long quantity,
-    DateTime expirationDate
+    DateTime manufactureDate,
+    DateTime expirationDate,
+    string productDescription
 );

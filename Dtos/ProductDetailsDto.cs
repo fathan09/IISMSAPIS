@@ -10,6 +10,8 @@ public record class ProductDetailsDto(
     string unit,
     decimal price,
     long quantity,
+    DateTime? manufactureDate,
     DateTime? expirationDate,
+    string? productDescription,
     DateTime firstCreationTimestamp
 );

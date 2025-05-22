@@ -8,5 +8,7 @@ public record class UpdateProductDto(
     string unit,
     decimal price,
     long quantity,
-    DateTime expirationDate
+    DateTime manufactureDate,
+    DateTime expirationDate,
+    string productDescription
 );

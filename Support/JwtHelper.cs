@@ -20,6 +20,8 @@ namespace IISMSBackend.Support
                     new Claim(ClaimTypes.Name, user.email),
                     new Claim(ClaimTypes.Role, user.role)
                 }),
+                Issuer = "fathan", 
+                Audience = "precisioncultivations",
                 Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

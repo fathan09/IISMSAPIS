@@ -21,12 +21,12 @@ public static class UserEndpoint {
                 .Select(user => user.ToUserDetailsDto())
                 .AsNoTracking()
                 .ToListAsync()
-        ).RequireAuthorization();
+        );
 
         group.MapGet("/{id}", async(int id, IISMSContext dbContext) => {
             User? user = await dbContext.Users.FindAsync(id);
             return user is null ? Results.NotFound() : Results.Ok(user.ToUserDetailsDto());
-        }).WithName(GetUserEndpointName).RequireAuthorization();
+        }).WithName(GetUserEndpointName);
 
         group.MapPost("/login", async (UserLoginDto loginUser, IISMSContext dbContext) => {
             var user = await dbContext.Users.FirstOrDefaultAsync(u => u.email == loginUser.email);

@@ -8,6 +8,11 @@ using ZXing.Common;
 using ZXing.SkiaSharp;
 using SkiaSharp;
 
+using System.Drawing;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Internal;
+using System.Collections.Immutable;
+
 
 namespace IISMSBackend.Endpoints;
 
@@ -17,17 +22,18 @@ public static class ProductEndpoint {
     public static RouteGroupBuilder MapProductEndpoint(this WebApplication app) {
         var group = app.MapGroup("product").WithParameterValidation();
 
-        group.MapGet("/all", async(IISMSContext dbContext) => 
+        group.MapGet("/all", async (IISMSContext dbContext) =>
             await dbContext.Products
                 .Select(product => product.ToProductDetailsDto())
                 .AsNoTracking()
                 .ToListAsync()
-        );
+        ).RequireAuthorization();
 
         group.MapGet("/{id}", async(int id, IISMSContext dbContext) => {
             Product? product = await dbContext.Products.FindAsync(id);
             return product is null ? Results.NotFound() : Results.Ok(product.ToProductDetailsDto());
-        }).WithName(GetProductEndpointName);
+        }).WithName(GetProductEndpointName).RequireAuthorization();
+
 
         group.MapPost("/create", async(CreateProductDto newProduct, IISMSContext dbContext) => {
             string barcodeInfo = $"{newProduct.productName}";
@@ -61,7 +67,7 @@ public static class ProductEndpoint {
             dbContext.Products.Add(product);
             await dbContext.SaveChangesAsync();
             return Results.CreatedAtRoute(GetProductEndpointName, new {id = product.productId}, product.ToProductDetailsDto());
-        }).WithParameterValidation();
+        }).WithParameterValidation().RequireAuthorization();
 
 
         group.MapPut("/update/{id}", async (int id, UpdateProductDto updatedProduct, IISMSContext dbContext) => {
@@ -75,34 +81,31 @@ public static class ProductEndpoint {
             dbContext.Entry(exisitingProduct).CurrentValues.SetValues(updatedProduct.ToEntity(id, existingBarcode, existingTimestamp));
             await dbContext.SaveChangesAsync();
             return Results.NoContent();
-        });
+        }).RequireAuthorization();
 
         group.MapDelete("/delete/{id}", async(int id, IISMSContext dbContext) => {
             await dbContext.Products.Where(product => product.productId == id).ExecuteDeleteAsync();
             return Results.NoContent();
-        });
+        }).RequireAuthorization();
 
-         group.MapGet("/search", async (HttpContext httpContext, IISMSContext dbContext) => {
-    string? name = httpContext.Request.Query["name"];
+       group.MapGet("/search", async (HttpContext httpContext, IISMSContext dbContext) => {
+        
+            string? name = httpContext.Request.Query["name"];
 
-    if (string.IsNullOrWhiteSpace(name)) {
-        return Results.BadRequest("Search query cannot be empty.");
-    }
+            if (string.IsNullOrWhiteSpace(name)) {
+                return Results.BadRequest("Search query cannot be empty.");
+            }
 
-        var products = await dbContext.Products
-            .Where(p => EF.Functions.ILike(p.productName, $"%{name}%")) 
-            .Select(p => p.ToProductDetailsDto())
-            .AsNoTracking()
-            .ToListAsync();
-    
-        return products.Any() ? Results.Ok(products) : Results.NotFound("No products found.");
-    });
+            var products = await dbContext.Products
+                .Where(p => EF.Functions.Like(p.productName, $"%{name}%"))
+                .Select(p => p.ToProductDetailsDto())
+                .AsNoTracking()
+                .ToListAsync();
 
-         group.MapPost("/sales", async(CreateSalesRecordDto newSales, IISMSContext dbContext) => {
+            return products.Any() ? Results.Ok(products) : Results.NotFound("No products found.");
+        }).RequireAuthorization();
 
-            Console.WriteLine("Received request data:");
-            Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(newSales));
-
+        group.MapPost("/sales", async(CreateSalesRecordDto newSales, IISMSContext dbContext) => {
             DateTime timestamp = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc);
 
 
@@ -122,8 +125,7 @@ public static class ProductEndpoint {
             dbContext.Sales.Add(sale);
             await dbContext.SaveChangesAsync();
             return Results.CreatedAtRoute(GetProductEndpointName, new {id = sale.salesId}, sale.ToSalesDetailsDto());
-
-        });
+        }).RequireAuthorization();
 
         group.MapGet("/allsalesinfo", async(IISMSContext dbContext) => {
             var sales = await dbContext.Sales
@@ -132,9 +134,8 @@ public static class ProductEndpoint {
                 .AsNoTracking()
                 .ToListAsync();
             return Results.Ok(sales);
-        });
+        }).RequireAuthorization();
 
-        
         group.MapPost("/createinventory", async(CreateInventoryDto newInventory, IISMSContext dbContext) => {
             DateTime timestamp = DateTime.SpecifyKind(DateTime.UtcNow, DateTimeKind.Utc);
 
@@ -142,7 +143,7 @@ public static class ProductEndpoint {
             dbContext.Inventory.Add(inventory);
             await dbContext.SaveChangesAsync();
             return Results.CreatedAtRoute(GetProductEndpointName, new { id = inventory.inventoryId }, inventory.ToInventoryDetailsDto());
-        });
+        }).RequireAuthorization();
         
 
         group.MapGet("/allinventoryinfo", async(IISMSContext dbContext) => {
@@ -151,13 +152,14 @@ public static class ProductEndpoint {
                 .AsNoTracking()
                 .ToListAsync();
             return Results.Ok(inventory);
-        });
+        }).RequireAuthorization();
 
         group.MapDelete("/deleteinventory/{id}", async(int id, IISMSContext dbContext) => {
             await dbContext.Inventory.Where(inventory => inventory.productId == id).ExecuteDeleteAsync();
             return Results.NoContent();
-        });
+        }).RequireAuthorization();
 
         return group;
+
     }
 }

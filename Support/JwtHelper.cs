@@ -20,7 +20,7 @@ namespace IISMSBackend.Support
                     new Claim(ClaimTypes.Name, user.email),
                     new Claim(ClaimTypes.Role, user.role)
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(3),
+                Expires = DateTime.UtcNow.AddHours(1),
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };

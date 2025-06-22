@@ -6,11 +6,10 @@ using IISMSBackend.Entities;
 using IISMSBackend.Support;
 
 
-
 namespace IISMSBackend.Endpoints;
 
 
-public static class UserEndpoint {
+public static class UserEndpoint { 
 
     const string GetUserEndpointName = "GetUser";
 
@@ -22,12 +21,12 @@ public static class UserEndpoint {
                 .Select(user => user.ToUserDetailsDto())
                 .AsNoTracking()
                 .ToListAsync()
-        );
+        ).RequireAuthorization();
 
         group.MapGet("/{id}", async(int id, IISMSContext dbContext) => {
             User? user = await dbContext.Users.FindAsync(id);
             return user is null ? Results.NotFound() : Results.Ok(user.ToUserDetailsDto());
-        }).WithName(GetUserEndpointName);
+        }).WithName(GetUserEndpointName).RequireAuthorization();
 
         group.MapPost("/login", async (UserLoginDto loginUser, IISMSContext dbContext) => {
             var user = await dbContext.Users.FirstOrDefaultAsync(u => u.email == loginUser.email);
@@ -75,7 +74,7 @@ public static class UserEndpoint {
             await dbContext.SaveChangesAsync();
 
             return Results.NoContent();
-        });
+        }).RequireAuthorization();
 
 
         return group;

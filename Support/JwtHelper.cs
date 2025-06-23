@@ -22,7 +22,7 @@ namespace IISMSBackend.Support
                 }),
                 Issuer = "fathan", 
                 Audience = "precisioncultivations",
-                Expires = DateTime.UtcNow.AddHours(1),
+                Expires = DateTime.UtcNow.AddMonths(1),
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };

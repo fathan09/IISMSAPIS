@@ -76,6 +76,19 @@ public static class UserEndpoint {
             return Results.NoContent();
         }).RequireAuthorization();
 
+        group.MapPut("/changepassword", async (ChangePasswordDto changePassword, IISMSContext dbContext) => {
+            var existingUser = await dbContext.Users.FirstOrDefaultAsync(u => u.email == changePassword.email);
+
+            if (existingUser is null) {
+                return Results.NotFound("User not found.");
+            }
+
+            existingUser.password = BCrypt.Net.BCrypt.HashPassword(changePassword.newPassword);
+
+            await dbContext.SaveChangesAsync();
+
+            return Results.Ok("Password changed successfully.");
+        });
 
         return group;
     }

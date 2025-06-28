@@ -198,6 +198,35 @@ public static class ProductEndpoint {
             return Results.CreatedAtRoute(GetOrderEndpointName, new {id = order.orderId}, order.ToOrderDetailsDto());
         }).WithParameterValidation();
 
+        group.MapPut("/order/{id}", async (int id, UpdateOrderDto updatedOrder, IISMSContext dbContext) => {
+            var existingOrder = await dbContext.Orders
+                .Include(o => o.OrderProducts)
+                .FirstOrDefaultAsync(o => o.orderId == id);
+
+            if (existingOrder is null)
+            {
+                return Results.NotFound();
+            }
+
+            var allProducts = await dbContext.Products.ToListAsync();
+
+            var productIds = updatedOrder.productName
+                .Select(name => 
+                    allProducts.FirstOrDefault(p => p.productName == name)?.productId ?? -1
+                ).ToArray();
+
+            if (productIds.Any(id => id == -1))
+            {
+                return Results.BadRequest("One or more product names are invalid.");
+            }
+
+    
+            updatedOrder.ApplyUpdate(existingOrder, productIds);
+
+            await dbContext.SaveChangesAsync();
+            return Results.NoContent();
+        });
+
         return group;
 
     }

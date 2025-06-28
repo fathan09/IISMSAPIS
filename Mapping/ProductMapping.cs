@@ -162,6 +162,7 @@ public static class ProductMapping {
         return new(
             order.orderId,
             order.customerName,
+            order.customerSignature,
             order.address,
             order.deliveryDate,
             order.status,

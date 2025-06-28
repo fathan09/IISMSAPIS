@@ -62,6 +62,30 @@ public static class ProductMapping {
        return salesEntity;
     }
 
+    public static Order ToEntity(this CreateOrderDto order, int[] productId)
+    {
+
+        var orderEntity = new Order
+        {
+            customerName = order.customerName,
+            address = order.address,
+            deliveryDate = DateTime.SpecifyKind(order.deliveryDate, DateTimeKind.Utc),
+            status = order.status,
+            OrderProducts = new List<OrderProduct>()
+        };
+        for (int i = 0; i < order.productName.Length; i++)
+        {
+            var salesProduct = new OrderProduct
+            {
+                productId = productId[i],
+                orderQuantity = order.quantity[i],
+                Order = orderEntity
+            };
+            orderEntity.OrderProducts.Add(salesProduct);
+        }
+        return orderEntity;
+    }
+
     public static Inventory ToEntity(this CreateInventoryDto inventory, DateTime timestamp) {
         return new Inventory() {
             productId = inventory.productId,

@@ -227,6 +227,23 @@ public static class ProductEndpoint {
             return Results.NoContent();
         });
 
+        group.MapPatch("/order/{id}/signature", async (int id, AddSignatureDto updateDto, IISMSContext dbContext) =>
+        {
+            var order = await dbContext.Orders.FindAsync(id);
+
+            if (order is null)
+            {
+                return Results.NotFound($"Order with ID {id} not found.");
+            }
+
+            order.status = updateDto.status;
+            order.customerSignature = updateDto.customerSignature;
+
+            await dbContext.SaveChangesAsync();
+
+            return Results.NoContent();
+        });
+
          group.MapDelete("/deleteorder/{id}", async(int id, IISMSContext dbContext) => {
             await dbContext.Orders.Where(order => order.orderId == id).ExecuteDeleteAsync();
             return Results.NoContent();

@@ -136,10 +136,11 @@ public static class ProductMapping {
         );
     }
 
-    public static OrderDetailsDto ToOrderDetailsDto(this Order order) {
+     public static OrderDetailsDto ToOrderDetailsDto(this Order order) {
         return new(
             order.orderId,
             order.customerName,
+            order.address,
             order.deliveryDate,
             order.status,
             order.OrderProducts

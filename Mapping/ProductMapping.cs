@@ -111,4 +111,14 @@ public static class ProductMapping {
             inventory.inventoryTimestamp
         );
     }
+
+    public static OrderDetailsDto ToOrderDetailsDto(this Order order) {
+        return new(
+            order.orderId,
+            order.customerName,
+            order.deliveryDate,
+            order.status,
+            order.OrderProducts
+        );
+    }
 }

@@ -227,6 +227,12 @@ public static class ProductEndpoint {
             return Results.NoContent();
         });
 
+         group.MapDelete("/deleteorder/{id}", async(int id, IISMSContext dbContext) => {
+            await dbContext.Orders.Where(order => order.orderId == id).ExecuteDeleteAsync();
+            return Results.NoContent();
+        });
+
+
         return group;
 
     }

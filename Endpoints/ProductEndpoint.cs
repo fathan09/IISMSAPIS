@@ -167,9 +167,15 @@ public static class ProductEndpoint {
                 .ToListAsync()
         );
 
-        group.MapGet("/order/{id}", async(int id, IISMSContext dbContext) => {
-            Order? order = await dbContext.Orders.FindAsync(id);
-            return order is null ? Results.NotFound() : Results.Ok(order.ToOrderDetailsDto());
+        group.MapGet("/order/{id}", async (int id, IISMSContext dbContext) =>
+        {
+            var order = await dbContext.Orders
+                .Include(o => o.OrderProducts) 
+                .FirstOrDefaultAsync(o => o.orderId == id);
+
+            return order is null
+                ? Results.NotFound()
+                : Results.Ok(order.ToOrderDetailsDto());
         }).WithName(GetOrderEndpointName);
 
 

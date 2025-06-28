@@ -18,6 +18,7 @@ namespace IISMSBackend.Endpoints;
 
 public static class ProductEndpoint {
     const string GetProductEndpointName = "GetProduct";
+    const string GetOrderEndpointName = "GetOrder";
 
     public static RouteGroupBuilder MapProductEndpoint(this WebApplication app) {
         var group = app.MapGroup("product").WithParameterValidation();

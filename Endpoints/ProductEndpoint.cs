@@ -189,7 +189,7 @@ public static class ProductEndpoint {
 
             dbContext.Orders.Add(order);
             await dbContext.SaveChangesAsync();
-            return Results.CreatedAtRoute("GetOrderProduct", new {id = order.orderId}, order.ToOrderDetailsDto());
+            return Results.CreatedAtRoute(GetOrderEndpointName, new {id = order.orderId}, order.ToOrderDetailsDto());
         }).WithParameterValidation();
 
         return group;

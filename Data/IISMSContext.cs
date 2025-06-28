@@ -20,4 +20,5 @@ public class IISMSContext : DbContext {
     public DbSet <Sales> Sales {get; set;}
     public DbSet <SalesProduct> SalesProduct {get; set;}
     public DbSet <Inventory> Inventory {get; set;}
+    public DbSet <Order> Orders {get; set;}
 }

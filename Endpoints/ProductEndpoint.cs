@@ -159,6 +159,38 @@ public static class ProductEndpoint {
             return Results.NoContent();
         }).RequireAuthorization();
 
+        group.MapGet("/allorderinfo", async (IISMSContext dbContext) =>
+            await dbContext.Orders
+                .Select(order => order.ToOrderDetailsDto())
+                .AsNoTracking()
+                .ToListAsync()
+        );
+
+        group.MapGet("/order/{id}", async(int id, IISMSContext dbContext) => {
+            Order? order = await dbContext.Orders.FindAsync(id);
+            return order is null ? Results.NotFound() : Results.Ok(order.ToOrderDetailsDto());
+        }).WithName(GetOrderEndpointName);
+
+
+        group.MapPost("/order", async(CreateOrderDto newOrder, IISMSContext dbContext) => {
+            int[] productId = new int[newOrder.productName.Length];
+            for(int i = 0; i < newOrder.productName.Length; i++) {
+                var product = await dbContext.Products.FirstOrDefaultAsync(p => p.productName == newOrder.productName[i]);
+
+                if(product == null) {
+                    return Results.NotFound($"Product not found : {newOrder.productName[i]}");
+                } else {
+                    productId[i] = product.productId;
+                }
+            }
+
+            Order order =  newOrder.ToEntity(productId);
+
+            dbContext.Orders.Add(order);
+            await dbContext.SaveChangesAsync();
+            return Results.CreatedAtRoute("GetOrderProduct", new {id = order.orderId}, order.ToOrderDetailsDto());
+        }).WithParameterValidation();
+
         return group;
 
     }

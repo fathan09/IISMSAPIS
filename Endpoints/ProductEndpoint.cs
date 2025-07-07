@@ -249,6 +249,23 @@ public static class ProductEndpoint {
             return Results.NoContent();
         });
 
+         group.MapGet("/searchcustomer", async (HttpContext httpContext, IISMSContext dbContext) => {
+        
+            string? name = httpContext.Request.Query["name"];
+
+            if (string.IsNullOrWhiteSpace(name)) {
+                return Results.BadRequest("Search query cannot be empty.");
+            }
+
+            var orders = await dbContext.Orders
+                .Where(o => EF.Functions.Like(o.customerName, $"%{name}%"))
+                .Select(o => o.ToOrderDetailsDto())
+                .AsNoTracking()
+                .ToListAsync();
+
+            return orders.Any() ? Results.Ok(orders) : Results.NotFound("No products found.");
+        }).RequireAuthorization();
+
 
         return group;
 

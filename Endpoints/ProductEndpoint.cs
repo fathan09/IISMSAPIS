@@ -266,6 +266,21 @@ public static class ProductEndpoint {
             return orders.Any() ? Results.Ok(orders) : Results.NotFound("No products found.");
         }).RequireAuthorization();
 
+        group.MapPatch("/updatequantity/{id}", async (int id, UpdateQuantityDto quantityDto, IISMSContext dbContext) =>
+        {
+            var product = await dbContext.Products.FindAsync(id);
+
+            if (product is null)
+            {
+                return Results.NotFound($"Product with ID {id} not found.");
+            }
+
+            product.quantity = quantityDto.quantity;
+
+            await dbContext.SaveChangesAsync();
+
+            return Results.NoContent();
+        });
 
         return group;
 
